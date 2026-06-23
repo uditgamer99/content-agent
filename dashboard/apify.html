@@ -1,174 +1,269 @@
-<!DOCTYPE html>
+          <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Apify Data Fetcher</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: #0d0d0d;
-      color: #fff;
-      font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
-    }
-    h1 { font-size: 1.2rem; margin-bottom: 6px; }
-    p { color: #888; font-size: 0.8rem; margin-bottom: 20px; }
-    input {
-      width: 100%;
-      padding: 12px;
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 10px;
-      color: #fff;
-      font-size: 0.85rem;
-      margin-bottom: 12px;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      background: #fff;
-      color: #000;
-      border: none;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      cursor: pointer;
-      margin-bottom: 12px;
-    }
-    #status {
-      background: #1a1a1a;
-      border-radius: 10px;
-      padding: 14px;
-      font-size: 0.78rem;
-      color: #aaa;
-      line-height: 1.6;
-      min-height: 100px;
-    }
-    .success { color: #00e676; }
-    .error { color: #ff5252; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Apify Data Fetcher</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#0d0d0d;
+color:white;
+font-family:Segoe UI,sans-serif;
+padding:20px;
+}
+
+h1{
+font-size:1.2rem;
+margin-bottom:8px;
+}
+
+p{
+color:#888;
+font-size:0.8rem;
+margin-bottom:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+background:#1a1a1a;
+border:1px solid #2a2a2a;
+border-radius:10px;
+color:white;
+margin-bottom:12px;
+}
+
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+font-size:0.9rem;
+font-weight:700;
+background:white;
+color:black;
+margin-bottom:12px;
+cursor:pointer;
+}
+
+#status{
+background:#1a1a1a;
+padding:14px;
+border-radius:10px;
+font-size:0.8rem;
+line-height:1.6;
+min-height:120px;
+color:#aaa;
+overflow:auto;
+}
+
+.success{
+color:#00e676;
+}
+
+.error{
+color:#ff5252;
+}
+</style>
 </head>
 <body>
 
-  <h1>⚡ Apify Data Fetcher</h1>
-  <p>Pulls your Instagram + competitor data into the dashboard</p>
+<h1>⚡ Apify Data Fetcher</h1>
+<p>Pulls Instagram data into the dashboard</p>
 
-  <input type="password" id="token" placeholder="Paste your Apify token here"/>
-  <button onclick="startScrape()">🚀 Start Scraping</button>
-  <button onclick="checkStatus()">🔄 Check Status</button>
-  <button onclick="saveData()">💾 Save to Dashboard</button>
+<input
+type="password"
+id="token"
+placeholder="Paste your Apify token here">
 
-  <div id="status">Waiting to start...</div>
+<button onclick="startScrape()">🚀 Start Scraping</button>
 
-  <script>
-    let runId = null;
-    let datasetId = null;
+<button onclick="checkStatus()">🔄 Check Status</button>
 
-    const HANDLES = [
-      "stick_anime0",
-      "stickman_animation_007",
-      "stickman_animation_09"
-    ];
+<button onclick="saveData()">💾 Save to Dashboard</button>
 
-    function log(msg, type = '') {
-      const s = document.getElementById('status');
-      s.innerHTML += `<span class="${type}">${msg}</span><br/>`;
-      s.scrollTop = s.scrollHeight;
-    }
+<div id="status">
+Waiting to start...
+</div>
 
-    function clearLog() {
-      document.getElementById('status').innerHTML = '';
-    }
+<script>
 
-    async function startScrape() {
-      clearLog();
-      const token = document.getElementById('token').value.trim();
-      if (!token) { log('❌ Please paste your Apify token first', 'error'); return; }
+let runId=null;
+let datasetId=null;
 
-      log('🚀 Starting Instagram scrape...');
-      log('Handles: ' + HANDLES.join(', '));
+const HANDLES=[
+"stick_anime0",
+"stickman_animation_007",
+"stickman_animation_09"
+];
 
-      try {
-        const res = await fetch(
-          `https://api.apify.com/v2/acts/apify~instagram-scraper/runs?token=${token}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              usernames: HANDLES,
-              resultsLimit: 20
-            })
-          }
-        );
-        const data = await res.json();
-        if (data.id) {
-          runId = data.id;
-          datasetId = data.defaultDatasetId;
-          log('✅ Scrape started!', 'success');
-          log('Run ID: ' + runId);
-          log('⏳ Wait 2-3 minutes then tap Check Status');
-        } else {
-          log('❌ Error: ' + JSON.stringify(data), 'error');
-        }
-      } catch(e) {
-        log('❌ Failed: ' + e.message, 'error');
-      }
-    }
+function log(msg,type=""){
+const s=document.getElementById("status");
+s.innerHTML+=`<span class="${type}">${msg}</span><br>`;
+s.scrollTop=s.scrollHeight;
+}
 
-    async function checkStatus() {
-      const token = document.getElementById('token').value.trim();
-      if (!runId) { log('❌ Start scraping first', 'error'); return; }
+function clearLog(){
+document.getElementById("status").innerHTML="";
+}
 
-      log('🔄 Checking status...');
-      try {
-        const res = await fetch(
-          `https://api.apify.com/v2/actor-runs/${runId}?token=${token}`
-        );
-        const data = await res.json();
-        const status = data.status;
-        log('Status: ' + status, status === 'SUCCEEDED' ? 'success' : '');
-        if (status === 'SUCCEEDED') {
-          datasetId = data.defaultDatasetId;
-          log('✅ Data ready! Tap Save to Dashboard', 'success');
-        } else if (status === 'RUNNING') {
-          log('⏳ Still running... check again in 1 min');
-        }
-      } catch(e) {
-        log('❌ Failed: ' + e.message, 'error');
-      }
-    }
+async function startScrape(){
 
-    async function saveData() {
-      const token = document.getElementById('token').value.trim();
-      if (!datasetId) { log('❌ No data yet — scrape first', 'error'); return; }
+clearLog();
 
-      log('💾 Fetching results...');
-      try {
-        const res = await fetch(
-          `https://api.apify.com/v2/datasets/${datasetId}/items?token=${token}`
-        );
-        const items = await res.json();
-        log('📦 Got ' + items.length + ' results', 'success');
+const token=document.getElementById("token").value.trim();
 
-        // Show download link
-        const blob = new Blob([JSON.stringify(items, null, 2)], 
-          {type: 'application/json'});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'data.json';
-        a.style.display = 'block';
-        a.style.color = '#00e676';
-        a.style.marginTop = '10px';
-        a.textContent = '⬇️ Download data.json';
-        document.body.appendChild(a);
-        log('✅ Tap the green link below to download!', 'success');
-      } catch(e) {
-        log('❌ Failed: ' + e.message, 'error');
-      }
-    }
-  </script>
+if(!token){
+log("❌ Please paste token first","error");
+return;
+}
+
+log("🚀 Starting Instagram scrape...");
+log("Handles: "+HANDLES.join(", "));
+
+const directUrls=HANDLES.map(
+h=>`https://www.instagram.com/${h}/`
+);
+
+try{
+
+const res=await fetch(
+`https://api.apify.com/v2/acts/apify~instagram-scraper/runs?token=${token}`,
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+directUrls:directUrls,
+resultsLimit:20
+})
+}
+);
+
+const data=await res.json();
+
+if(data.data?.id){
+
+runId=data.data.id;
+datasetId=data.data.defaultDatasetId;
+
+log("✅ Scrape started","success");
+log("Run ID: "+runId);
+log("⏳ Wait 2-3 minutes then tap Check Status");
+
+}else{
+
+log("❌ Error: "+JSON.stringify(data),"error");
+
+}
+
+}catch(e){
+
+log("❌ "+e.message,"error");
+
+}
+
+}
+
+async function checkStatus(){
+
+const token=document.getElementById("token").value.trim();
+
+if(!runId){
+log("❌ Start scraping first","error");
+return;
+}
+
+try{
+
+const res=await fetch(
+`https://api.apify.com/v2/actor-runs/${runId}?token=${token}`
+);
+
+const data=await res.json();
+
+const status=data.data.status;
+
+log("Status: "+status);
+
+if(status==="SUCCEEDED"){
+
+datasetId=data.data.defaultDatasetId;
+
+log("✅ Data ready","success");
+
+}else if(status==="RUNNING"){
+
+log("⏳ Still running");
+
+}
+
+}catch(e){
+
+log("❌ "+e.message,"error");
+
+}
+
+}
+
+async function saveData(){
+
+const token=document.getElementById("token").value.trim();
+
+if(!datasetId){
+log("❌ No dataset yet","error");
+return;
+}
+
+try{
+
+const res=await fetch(
+`https://api.apify.com/v2/datasets/${datasetId}/items?token=${token}`
+);
+
+const items=await res.json();
+
+log(`📦 Got ${items.length} results`,"success");
+
+const blob=new Blob(
+[JSON.stringify(items,null,2)],
+{
+type:"application/json"
+}
+);
+
+const url=URL.createObjectURL(blob);
+
+const a=document.createElement("a");
+
+a.href=url;
+a.download="data.json";
+a.textContent="⬇️ Download data.json";
+a.style.color="#00e676";
+a.style.display="block";
+a.style.marginTop="12px";
+
+document.body.appendChild(a);
+
+log("✅ Download link created","success");
+
+}catch(e){
+
+log("❌ "+e.message,"error");
+
+}
+
+}
+
+</script>
 
 </body>
 </html>
