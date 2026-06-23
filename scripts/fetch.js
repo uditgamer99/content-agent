@@ -1,28 +1,41 @@
-// fetch.js — pulls Instagram data from Apify
-// Replace APIFY_TOKEN value in GitHub Secrets before running
+// fetch.js
 
-const APIFY_TOKEN = "YOUR_TOKEN_HERE"; // swapped via GitHub Secrets
-const MY_HANDLE = "stick_anime0";
-const COMPETITORS = ["stickman_animation_007", "stickman_animation_09"];
+const APIFY_TOKEN = "YOUR_TOKEN_HERE";
 
-const ALL_HANDLES = [MY_HANDLE, ...COMPETITORS];
+const HANDLES = [
+  "stick_anime0",
+  "stickman_animation_007",
+  "stickman_animation_09"
+];
+
+const DIRECT_URLS = HANDLES.map(
+  handle => `https://www.instagram.com/${handle}/`
+);
 
 async function scrapeInstagram() {
-  const response = await fetch(
-    `https://api.apify.com/v2/acts/apify~instagram-scraper/runs?token=${APIFY_TOKEN}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        usernames: ALL_HANDLES,
-        resultsLimit: 30,
-      }),
-    }
-  );
+  try {
+    const response = await fetch(
+      `https://api.apify.com/v2/acts/apify~instagram-scraper/runs?token=${APIFY_TOKEN}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          directUrls: DIRECT_URLS,
+          resultsLimit: 30
+        })
+      }
+    );
 
-  const data = await response.json();
-  console.log("Scrape started:", data.id);
-  return data.id;
+    const data = await response.json();
+
+    console.log("Run ID:", data.data.id);
+    console.log("Dataset ID:", data.data.defaultDatasetId);
+
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 scrapeInstagram();
