@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Content Agent Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0d0d0d;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.4rem;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .subtitle {
+      text-align: center;
+      color: #888;
+      font-size: 0.8rem;
+      margin-bottom: 24px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .card {
+      background: #1a1a1a;
+      border-radius: 14px;
+      padding: 16px;
+      border: 1px solid #2a2a2a;
+    }
+    .card.full { grid-column: span 2; }
+    .agent-icon { font-size: 1.6rem; margin-bottom: 8px; }
+    .agent-name {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .agent-status {
+      font-size: 0.7rem;
+      color: #00e676;
+      margin-bottom: 10px;
+    }
+    .agent-output {
+      font-size: 0.72rem;
+      color: #aaa;
+      line-height: 1.5;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+    .stat {
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .stat-label {
+      font-size: 0.65rem;
+      color: #666;
+    }
+    .tag {
+      display: inline-block;
+      background: #2a2a2a;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      color: #ccc;
+      margin: 2px;
+    }
+    .refresh-btn {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background: #fff;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>⚡ Content Agent</h1>
+  <p class="subtitle">@stick_anime0 — Live Dashboard</p>
+
+  <div class="grid">
+
+    <!-- Agent 1: Ideator -->
+    <div class="card">
+      <div class="agent-icon">💡</div>
+      <div class="agent-name">Ideator</div>
+      <div class="agent-status">● Active</div>
+      <div class="agent-output" id="ideator-output">
+        Scanning competitor posts...<br/>
+        Finding content gaps...
+      </div>
+    </div>
+
+    <!-- Agent 2: Hook & Script -->
+    <div class="card">
+      <div class="agent-icon">✍️</div>
+      <div class="agent-name">Hook & Script</div>
+      <div class="agent-status">● Active</div>
+      <div class="agent-output" id="hook-output">
+        Drafting hooks...<br/>
+        Writing captions...
+      </div>
+    </div>
+
+    <!-- Agent 3: Planner -->
+    <div class="card">
+      <div class="agent-icon">📅</div>
+      <div class="agent-name">Planner</div>
+      <div class="agent-status">● Active</div>
+      <div class="agent-output" id="planner-output">
+        Building calendar...<br/>
+        Best time: 7–9 PM
+      </div>
+    </div>
+
+    <!-- Agent 4: Analyst -->
+    <div class="card">
+      <div class="agent-icon">📊</div>
+      <div class="agent-name">Analyst</div>
+      <div class="agent-status">● Active</div>
+      <div class="agent-output" id="analyst-output">
+        Reading your stats...<br/>
+        Comparing vs competitors...
+      </div>
+      <div class="stat-row">
+        <div class="stat">
+          <div class="stat-value" id="stat-posts">—</div>
+          <div class="stat-label">Posts</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-followers">—</div>
+          <div class="stat-label">Followers</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="stat-eng">—</div>
+          <div class="stat-label">Eng. Rate</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent 5: DM Manager -->
+    <div class="card full">
+      <div class="agent-icon">💬</div>
+      <div class="agent-name">DM Manager</div>
+      <div class="agent-status">● Active</div>
+      <div class="agent-output" id="dm-output">
+        Monitoring comments...<br/>
+        Suggested replies ready.
+      </div>
+      <div style="margin-top:10px;">
+        <span class="tag">#animeart</span>
+        <span class="tag">#stickman</span>
+        <span class="tag">#jujutsukaisen</span>
+        <span class="tag">#gojo</span>
+        <span class="tag">#anime</span>
+      </div>
+    </div>
+
+  </div>
+
+  <button class="refresh-btn" onclick="loadData()">🔄 Refresh Agents</button>
+
+  <script>
+    async function loadData() {
+      try {
+        const res = await fetch('data.json');
+        const data = await res.json();
+        const me = data.find(u => u.username === "stick_anime0");
+        if (me) {
+          document.getElementById('stat-posts').textContent = me.postsCount || '—';
+          document.getElementById('stat-followers').textContent = me.followersCount || '—';
+          const eng = me.engagementRate ? (me.engagementRate * 100).toFixed(1) + '%' : '—';
+          document.getElementById('stat-eng').textContent = eng;
+          document.getElementById('analyst-output').innerHTML =
+            `Your top post: ${me.latestPost || 'N/A'}<br/>Competitors avg: calculating...`;
+        }
+      } catch(e) {
+        console.log('No data yet — run fetch.js first');
+      }
+    }
+    loadData();
+  </script>
+
+</body>
+</html>
