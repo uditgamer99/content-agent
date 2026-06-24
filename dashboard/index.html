@@ -1,4 +1,4 @@
-      <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -190,7 +190,7 @@
     }
 
     function setStatus(id, text, thinking = false) {
-      const el = document.getElementById('id');
+      const el = document.getElementById(id);
       if (!el) return;
       el.textContent = text;
       el.className = 'agent-status' + (thinking ? ' thinking' : '');
@@ -217,7 +217,9 @@
         })
       });
       const data = await res.json();
-      return data.content?.[0]?.text || 'No response';
+      if (data.error) return '❌ API Error: ' + data.error.message;
+if (data.content && data.content[0]) return data.content[0].text;
+return '❌ No response — check API key';
     }
 
     async function runAllAgents() {
