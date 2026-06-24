@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"/></head>
+<body style="background:#0d0d0d;color:#fff;padding:20px;font-family:sans-serif;">
+  <h2>API Test</h2>
+  <input id="key" type="password" placeholder="Paste API key" 
+    style="width:100%;padding:10px;margin-bottom:10px;background:#1a1a1a;color:#fff;border:1px solid #333;border-radius:8px;"/>
+  <button onclick="test()" 
+    style="width:100%;padding:12px;background:#fff;color:#000;border:none;border-radius:8px;font-weight:700;">
+    Test API
+  </button>
+  <pre id="out" style="margin-top:20px;color:#00e676;font-size:0.75rem;white-space:pre-wrap;"></pre>
+
+  <script>
+    async function test() {
+      const key = document.getElementById('key').value.trim();
+      document.getElementById('out').textContent = 'Calling API...';
+      try {
+        const res = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': key,
+            'anthropic-version': '2023-06-01',
+            'anthropic-dangerous-direct-browser-access': 'true'
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 50,
+            messages: [{ role: 'user', content: 'Say hello in 5 words.' }]
+          })
+        });
+        const data = await res.json();
+        document.getElementById('out').textContent = JSON.stringify(data, null, 2);
+      } catch(e) {
+        document.getElementById('out').textContent = 'ERROR: ' + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
