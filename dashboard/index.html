@@ -202,6 +202,7 @@
     }
 
     async function askClaude(apiKey, prompt) {
+    async function askClaude(apiKey, prompt) {
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
         {
@@ -215,7 +216,7 @@
       const data = await res.json();
       if (data.error) return '❌ ' + data.error.message;
       return data.candidates?.[0]?.content?.parts?.[0]?.text || '❌ No response: ' + JSON.stringify(data).slice(0, 100);
-    };
+    }
       const data = await res.json();
 console.log('API Response:', JSON.stringify(data));
 if (data.error) return '❌ ' + data.error.message;
