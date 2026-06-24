@@ -217,9 +217,10 @@
         })
       });
       const data = await res.json();
-      if (data.error) return '❌ API Error: ' + data.error.message;
+console.log('API Response:', JSON.stringify(data));
+if (data.error) return '❌ ' + data.error.message;
 if (data.content && data.content[0]) return data.content[0].text;
-return '❌ No response — check API key';
+return '❌ Raw: ' + JSON.stringify(data).slice(0, 100);
     }
 
     async function runAllAgents() {
