@@ -196,18 +196,22 @@
 
     async function askGemini(apiKey, prompt) {
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+        'https://openrouter.ai/api/v1/chat/completions',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + apiKey
+          },
           body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }]
+            model: 'meta-llama/llama-3.2-3b-instruct:free',
+            messages: [{ role: 'user', content: prompt }]
           })
         }
       );
       const data = await res.json();
       if (data.error) return '❌ ' + data.error.message;
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || '❌ Empty response';
+      return data.choices?.[0]?.message?.content || '❌ Empty response';
     }
 
     async function runAllAgents() {
