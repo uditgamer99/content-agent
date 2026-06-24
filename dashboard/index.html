@@ -168,7 +168,7 @@
 
   <button class="run-btn" id="mainBtn" onclick="runAllAgents()">🤖 Run All Agents</button>
 
-  <script>
+        <script>
     let instagramData = null;
 
     async function loadData() {
@@ -189,20 +189,12 @@
       }
     }
 
-    function setStatus(id, text, thinking = false) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.textContent = text;
-      el.className = 'agent-status' + (thinking ? ' thinking' : '');
-    }
-
     function setOutput(id, text) {
       const el = document.getElementById(id);
       if (el) el.innerHTML = text.replace(/\n/g, '<br/>');
     }
 
-    async function askClaude(apiKey, prompt) {
-    async function askClaude(apiKey, prompt) {
+    async function askGemini(apiKey, prompt) {
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
         {
@@ -215,19 +207,13 @@
       );
       const data = await res.json();
       if (data.error) return '❌ ' + data.error.message;
-      return data.candidates?.[0]?.content?.parts?.[0]?.text || '❌ No response: ' + JSON.stringify(data).slice(0, 100);
-    }
-      const data = await res.json();
-console.log('API Response:', JSON.stringify(data));
-if (data.error) return '❌ ' + data.error.message;
-if (data.content && data.content[0]) return data.content[0].text;
-return '❌ Raw: ' + JSON.stringify(data).slice(0, 100);
+      return data.candidates?.[0]?.content?.parts?.[0]?.text || '❌ Empty response';
     }
 
     async function runAllAgents() {
       const apiKey = document.getElementById('claude-key').value.trim();
       if (!apiKey) {
-        alert('Please paste your Claude API key first');
+        alert('Please paste your Gemini API key first');
         return;
       }
 
@@ -237,23 +223,23 @@ return '❌ Raw: ' + JSON.stringify(data).slice(0, 100);
 
       const dataContext = instagramData
         ? JSON.stringify(instagramData).slice(0, 800)
-        : 'No Instagram data loaded yet. Give general advice for anime stickman content.';
+        : 'No Instagram data yet. Give general advice for anime stickman content.';
 
       // Agent 1 — Ideator
       document.getElementById('s1').textContent = '● Thinking...';
       document.getElementById('s1').className = 'agent-status thinking';
       setOutput('o1', 'Generating ideas...');
       try {
-        const r1 = await askClaude(apiKey,
-          `You are a content ideator for an anime stickman Instagram account @stick_anime0.
-           Based on this data: ${dataContext}
-           Give 5 short video/post ideas that would perform well. Be specific. Max 80 words.`
+        const r1 = await askGemini(apiKey,
+          `You are a content ideator for anime stickman Instagram @stick_anime0.
+           Data: ${dataContext}
+           Give 5 specific post ideas that would perform well. Max 80 words.`
         );
         setOutput('o1', r1);
         document.getElementById('s1').textContent = '● Done';
         document.getElementById('s1').className = 'agent-status';
       } catch(e) {
-        setOutput('o1', '❌ Error: ' + e.message);
+        setOutput('o1', '❌ ' + e.message);
       }
 
       // Agent 2 — Hook & Script
@@ -261,16 +247,16 @@ return '❌ Raw: ' + JSON.stringify(data).slice(0, 100);
       document.getElementById('s2').className = 'agent-status thinking';
       setOutput('o2', 'Writing hooks...');
       try {
-        const r2 = await askClaude(apiKey,
-          `You are a hook writer for anime stickman content on Instagram @stick_anime0.
-           Write 3 scroll-stopping hooks for Reels. Make them punchy, under 10 words each.
+        const r2 = await askGemini(apiKey,
+          `You are a hook writer for anime stickman Instagram @stick_anime0.
+           Write 3 scroll-stopping Reel hooks under 10 words each.
            Then write one 30-word caption. Max 80 words total.`
         );
         setOutput('o2', r2);
         document.getElementById('s2').textContent = '● Done';
         document.getElementById('s2').className = 'agent-status';
       } catch(e) {
-        setOutput('o2', '❌ Error: ' + e.message);
+        setOutput('o2', '❌ ' + e.message);
       }
 
       // Agent 3 — Planner
@@ -278,16 +264,16 @@ return '❌ Raw: ' + JSON.stringify(data).slice(0, 100);
       document.getElementById('s3').className = 'agent-status thinking';
       setOutput('o3', 'Building calendar...');
       try {
-        const r3 = await askClaude(apiKey,
+        const r3 = await askGemini(apiKey,
           `You are a content planner for anime stickman Instagram @stick_anime0.
-           Create a 7-day posting calendar. Best post time is 7-9PM.
-           Include post type and topic for each day. Max 80 words.`
+           Create a 7-day posting calendar. Best time 7-9PM.
+           Include post type and topic per day. Max 80 words.`
         );
         setOutput('o3', r3);
         document.getElementById('s3').textContent = '● Done';
         document.getElementById('s3').className = 'agent-status';
       } catch(e) {
-        setOutput('o3', '❌ Error: ' + e.message);
+        setOutput('o3', '❌ ' + e.message);
       }
 
       // Agent 4 — Analyst
@@ -295,16 +281,16 @@ return '❌ Raw: ' + JSON.stringify(data).slice(0, 100);
       document.getElementById('s4').className = 'agent-status thinking';
       setOutput('o4', 'Analysing stats...');
       try {
-        const r4 = await askClaude(apiKey,
-          `You are a stats analyst for Instagram @stick_anime0 (anime stickman art account).
+        const r4 = await askGemini(apiKey,
+          `You are a stats analyst for Instagram @stick_anime0 anime stickman account.
            Data: ${dataContext}
-           Give 3 key insights comparing my account vs competitors. Max 80 words.`
+           Give 3 key insights vs competitors. Max 80 words.`
         );
         setOutput('o4', r4);
         document.getElementById('s4').textContent = '● Done';
         document.getElementById('s4').className = 'agent-status';
       } catch(e) {
-        setOutput('o4', '❌ Error: ' + e.message);
+        setOutput('o4', '❌ ' + e.message);
       }
 
       // Agent 5 — DM Manager
@@ -312,17 +298,17 @@ return '❌ Raw: ' + JSON.stringify(data).slice(0, 100);
       document.getElementById('s5').className = 'agent-status thinking';
       setOutput('o5', 'Preparing replies...');
       try {
-        const r5 = await askClaude(apiKey,
-          `You are a DM and comment manager for anime stickman Instagram @stick_anime0.
-           Write 5 engaging reply templates for common comments like "this is fire", 
-           "how do you draw this", "tutorial please", "W", "🔥🔥".
-           Keep replies short, hype, anime-coded. Max 80 words.`
+        const r5 = await askGemini(apiKey,
+          `You are a DM manager for anime stickman Instagram @stick_anime0.
+           Write 5 reply templates for: "this is fire", "how do you draw this",
+           "tutorial please", "W", "🔥🔥".
+           Short, hype, anime-coded. Max 80 words.`
         );
         setOutput('o5', r5);
         document.getElementById('s5').textContent = '● Done';
         document.getElementById('s5').className = 'agent-status';
       } catch(e) {
-        setOutput('o5', '❌ Error: ' + e.message);
+        setOutput('o5', '❌ ' + e.message);
       }
 
       btn.disabled = false;
@@ -330,7 +316,6 @@ return '❌ Raw: ' + JSON.stringify(data).slice(0, 100);
     }
 
     loadData();
-  </script>
-
+      </script>
 </body>
 </html>
