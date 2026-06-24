@@ -102,7 +102,7 @@
   <p class="subtitle">@stick_anime0 — AI Dashboard</p>
 
   <div class="api-input">
-    <input type="password" id="claude-key" placeholder="Paste Claude API key"/>
+    <input type="password" id="gemini-key" placeholder="Paste gemini API key"/>
     <button onclick="runAllAgents()">▶ Run</button>
   </div>
 
@@ -211,7 +211,7 @@
     }
 
     async function runAllAgents() {
-      const apiKey = document.getElementById('claude-key').value.trim();
+      const apiKey = document.getElementById('gemini-key').value.trim();
       if (!apiKey) {
         alert('Please paste your Gemini API key first');
         return;
